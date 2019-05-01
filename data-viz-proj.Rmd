@@ -415,10 +415,10 @@ ggplot(data = countries, aes(x = long.new, y = lat)) +
   scale_colour_manual(values = c("grey50", "grey60", "grey70"))+ guides(color = FALSE) +
   geom_rect(aes(xmin=-10, xmax=90, ymin=-10, ymax=65), color="black", alpha=0, size = 0.05, linetype = 3)+
   geom_text(x=35, y=12, size=3, label="NORTH PACIFIC \nGARBAGE PATCH", family = "Ubuntu Mono", color="grey40")+
-  geom_text(x=-174, y=-48, size=3, label="SOUTH ATLANTIC \nGARBAGE PATCH", family = "Ubuntu Mono", color="grey40")+
+  geom_text(x=-174, y=-50, size=3, label="SOUTH ATLANTIC \nGARBAGE PATCH", family = "Ubuntu Mono", color="grey40")+
   geom_text(x=-80, y=-49, size=3, label="INDIAN OCEAN \nGARBAGE PATCH", family = "Ubuntu Mono", color="grey40")+
   geom_text(x=70, y=-49, size=3, label="SOUTH PACIFIC\nGARBAGE PATCH", family = "Ubuntu Mono", color="grey40")+
-  geom_text(x=150, y=13, size=3, label="NORTH \nATLANTIC\nGARBAGE\nPATCH", family = "Ubuntu Mono", color="grey40")
+  geom_text(x=152, y=13, size=3, label="NORTH \nATLANTIC\nGARBAGE\nPATCH", family = "Ubuntu Mono", color="grey40")
 
 
 
