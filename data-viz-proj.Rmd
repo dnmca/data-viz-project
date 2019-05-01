@@ -194,7 +194,7 @@ temp
 ggplot() + 
     geom_polygon(data=XY, 
                  aes(x=long.new, y=lat, group=gr.split), 
-                 colour="#9e9c8e", fill="#9e9c8e", size = 0.25) + 
+                 colour="grey70", fill="grey70", size = 0.25) + 
   scale_x_continuous(limits = c(-30, 110), breaks = c(-20, 0, 20, 40, 60, 80), labels = c("160°", "0°", "-160°", "-140°", "-120°", "-100°")) +
   scale_y_continuous(limits = c(-30, 85), breaks = c(-20, 0, 20, 40, 60, 80), labels = c("-20°", "0°", "20°", "40°", "60°", "80°")) +
   geom_point(data = temp, 
@@ -204,26 +204,29 @@ ggplot() +
              alpha = 0.8,
              size = 2) +
   scale_color_manual("n/km2", values = c("<100"="lightblue", "100-1000"="green", "1000-10000"="yellow", "10000-100000"="orange", "100000-1000000"="red", ">1000000"="darkred")) +
-  theme_minimal() +
+  theme_light() +
   coord_fixed() +
   theme() +
-  xlab("Longtitude") +
-  ylab("Latitude") +
+ # xlab("Longtitude") +
+ #  ylab("Latitude") +
   ggtitle("Microplastic numerical concentration in Pacific ocean") +
   geom_text(data = data.frame(x = -10, y = 15, label = "Great Paciific\nGarbage Patch"), aes(x = x, y = y, label = label), size = 4, family = "Ubuntu Mono", color = "black") +
    geom_curve(aes(x = -1, y = 19, xend = 15, yend = 30),
              arrow = arrow(length = unit(0.2, 'cm')), curvature = -0.1, size = 0.4, colour = 'black') + 
   theme(
     axis.text = element_text(family = 'Ubuntu Mono'),
-    axis.title = element_text(family = 'Ubuntu Mono'),
+    #axis.title = element_text(family = 'Ubuntu Mono'),
     plot.title = element_text(family = "Ubuntu Mono", size = 15),
     legend.title = element_text(family = "Ubuntu Mono", size = 12),
     legend.text = element_text(family = "Ubuntu Mono"),
-    legend.position = "top",
+    axis.title = element_blank(),
+    legend.position = c(0.85, 0.68),
+    legend.background = element_blank(),
+    legend.key = element_blank(),
     plot.margin = unit(c(1,1,1,1), "cm")
   )
 
-#ggsave("visualizations/mnc_map.png", last_plot())
+ggsave("visualizations/mnc_map.png", last_plot(), width = 10, height = 10)
 ```
 
 ```{r fig.width=14}
@@ -347,7 +350,7 @@ buyos2$Set <- as.integer(runif(n = 50, min = 1, max = 4))
 ```{r fig.width=14}
 ggplot(data = countries, aes(x = long.new, y = lat)) +
   geom_polygon(aes(group = group, fill = factors_mismanaged_2010_tonnes)) +
-  scale_fill_manual("tonnes", 
+  scale_fill_manual("", 
                     values = c("<5000"="#9bf902", 
                                "5000-10000"="#ccf902", 
                                "10000-50000"="#edf902", 
@@ -369,13 +372,13 @@ ggplot(data = countries, aes(x = long.new, y = lat)) +
     panel.grid.minor = element_line(size = 0.1),
     legend.text = element_text(family = "Ubuntu Mono"),
     axis.text = element_text(family = "Ubuntu Mono"),
-    legend.position = c(0.77, 0.32),
+    legend.position = c(0.06, 0.72),
     legend.title = element_text(family = "Ubuntu Mono"),
     plot.title = element_text(family = "Ubuntu")
   ) +
   ylab("") +
   xlab("") +
-  ggtitle("Mismatched plastic waste, tonnes") +
+  ggtitle("Mismatched plastic waste per coutry per year, tonnes") +
   geom_point(data = SAG, 
               aes(x = longitude, y = latitude, color=as.factor(Set)), na.rm=TRUE, size=0.5, shape=19) +
   stat_ellipse(data = SAG,
@@ -383,11 +386,11 @@ ggplot(data = countries, aes(x = long.new, y = lat)) +
   geom_point(data = SPG, 
              aes(x = longitude, y = latitude, color=as.factor(Set)), na.rm=TRUE, size=0.5, shape=19)+
   stat_ellipse(data = SPG,
-               aes(x = longitude, y = latitude), type = 'norm', alpha = 0.3, color = "#f9e902", level = 0.99) + 
+              aes(x = longitude, y = latitude), type = 'norm', alpha = 0.3, color = "#f96d02", level = 0.99) + 
   geom_point(data = NPG0, 
              aes(x = longitude, y = latitude, color=as.factor(Set)), na.rm=TRUE, size=0.5, shape=19)+
   stat_ellipse(data = NPG0,
-               aes(x = longitude, y = latitude), type = 'norm', alpha = 0.3, color = "#f90212", level = 0.99) + 
+               aes(x = longitude, y = latitude), type = 'norm', alpha = 0.3, color = "#f96d02", level = 0.99) + 
   geom_point(data = NPG00, 
              aes(x = longitude, y = latitude, color=as.factor(Set)), na.rm=TRUE, size=0.5, shape=19)+
   stat_ellipse(data = NPG00,
@@ -408,7 +411,8 @@ ggplot(data = countries, aes(x = long.new, y = lat)) +
              aes(x = longitude, y = latitude, color=as.factor(Set)), na.rm=TRUE, size=0.5, shape=19)+
   stat_ellipse(data = IOG,
                aes(x = longitude, y = latitude), type = 'norm', alpha = 0.3, color = "#f90212", level = 0.99) + 
-  scale_colour_manual(values = c("grey50", "grey60", "grey70"))+ guides(color = FALSE)
+  scale_colour_manual(values = c("grey50", "grey60", "grey70"))+ guides(color = FALSE) +
+  geom_rect(aes(xmin=-10, xmax=90, ymin=-10, ymax=65), color="black", alpha=0, size = 0.05, linetype = 3)
 
 
 
@@ -419,7 +423,7 @@ ggplot(data = countries, aes(x = long.new, y = lat)) +
     #              family = "Ubuntu Mono")
 
 
- #ggsave("visualizations/mismatched.png", last_plot( ))
+#ggsave("visualizations/mismatched.png", last_plot( ), width = 14.5, height = 8)
 ```
 
 
