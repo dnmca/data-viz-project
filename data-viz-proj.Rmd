@@ -13,6 +13,7 @@ library(maptools)
 library(data.table)
 library(ggpubr)
 library(ggrepel)
+library(ellipse)
 ```
 
 ```{r}
@@ -113,7 +114,7 @@ ggplot(data = grouped_by_date_patch, aes(x = date, y = mmnc, color = inside_GPGP
   geom_point(size = 5, alpha = 0.8) +
   scale_x_date(date_breaks = "5 years",  date_labels = "%Y") +
   scale_y_continuous(limits = c(0, 1.1e6), breaks = c(0, 2e5, 4e5, 6e5, 8e5, 1e6), labels = c("0", "200000", "400000", "600000", "800000", "1000000")) +
-  scale_color_manual(name = "Inside GPGP?", values = c("0"="lightblue", "1"="darkred"), labels = c("No", "Yes")) +
+  scale_color_manual(name = "", values = c("0"="lightblue", "1"="darkred"), labels = c("Outside GPGP", "Inside GPGP")) +
   ggtitle("Microplastic mass concentration") +
   theme_light() +
   ggtitle("Average month microplastic numerical concentration", "among all available observation points in Pacific ocean") +
@@ -200,7 +201,7 @@ ggplot() +
              aes(x = lon, 
                  y = lat, 
                  colour = mnc_factors), 
-             alpha = 0.6,
+             alpha = 0.8,
              size = 2) +
   scale_color_manual("n/km2", values = c("<100"="lightblue", "100-1000"="green", "1000-10000"="yellow", "10000-100000"="orange", "100000-1000000"="red", ">1000000"="darkred")) +
   theme_minimal() +
@@ -287,17 +288,19 @@ summary(hf$mismanaged_plastic_waste_in_2010_tonnes)
 
 
 ```{r}
-breaks = c(-Inf, 1000, 10000, 100000, 1000000, Inf)
+breaks = c(-Inf, 5000, 10000, 50000, 100000, 500000, 1000000, Inf)
 
 hf$factors_mismanaged_2010_tonnes <- cut(hf$mismanaged_plastic_waste_in_2010_tonnes, breaks = breaks)
 ```
 
 ```{r}
-levels(hf$factors_mismanaged_2010_tonnes)[1] = "<1000"
-levels(hf$factors_mismanaged_2010_tonnes)[2] = "1000-10000"
-levels(hf$factors_mismanaged_2010_tonnes)[3] = "10000-100000"
-levels(hf$factors_mismanaged_2010_tonnes)[4] = "100000-1000000"
-levels(hf$factors_mismanaged_2010_tonnes)[5] = ">1000000"
+levels(hf$factors_mismanaged_2010_tonnes)[1] = "<5000"
+levels(hf$factors_mismanaged_2010_tonnes)[2] = "5000-10000"
+levels(hf$factors_mismanaged_2010_tonnes)[3] = "10000-50000"
+levels(hf$factors_mismanaged_2010_tonnes)[4] = "50000-100000"
+levels(hf$factors_mismanaged_2010_tonnes)[5] = "100000-500000"
+levels(hf$factors_mismanaged_2010_tonnes)[6] = "500000-1000000"
+levels(hf$factors_mismanaged_2010_tonnes)[7] = ">1000000"
 ```
 
 
@@ -322,14 +325,37 @@ cnames$mismanaged_plastic_waste_kg_person_day <- round(cnames$mismanaged_plastic
 ```{r}
 cnames$mismanaged_plastic_waste_kg_person_day
 ```
+```{r}
+SAG <- read.csv("dots/SAG.csv")
+SPG <- read.csv("dots/SPG.csv")
+NPG0 <- read.csv("dots/NPG0.csv")
+NPG00 <- read.csv("dots/NPG0.csv")
+NPG2 <- read.csv("dots/NPG2.csv")
+NPG1 <- read.csv("dots/NPG1.csv")
+NAG <- read.csv("dots/NAG.csv")
+IOG <- read.csv("dots/IOG.csv")
+
+llt <- c(as.integer(runif(n = 20, min = -35, max = -27)),as.integer(runif(n = 20, min = -32, max = -20)),as.integer(runif(n = 10, min = -28, max = -25)))
+llg <- c(as.integer(runif(n = 20, min = -90, max = -78)),as.integer(runif(n = 20, min = -82, max = -70)),as.integer(runif(n = 10, min = -80, max = -75)))
+buyos2 <- data.frame("platform_code"=seq(1,50))
+buyos2$longitude <- llg
+buyos2$latitude <- llt
+buyos2$Set <- as.integer(runif(n = 50, min = 1, max = 4))
+```
 
 
 ```{r fig.width=14}
 ggplot(data = countries, aes(x = long.new, y = lat)) +
   geom_polygon(aes(group = group, fill = factors_mismanaged_2010_tonnes)) +
   scale_fill_manual("tonnes", 
-                    values = c("<1000"="#0571b0", "1000-10000"="#92c5de", "10000-100000"="#ffffbf", "100000-1000000"="#f4a582", ">1000000"="#ca0020"),
-                    labels = c("<1000", "1000-10000", "10000-100000", "100000-1000000", ">1000000", "No data"),
+                    values = c("<5000"="#9bf902", 
+                               "5000-10000"="#ccf902", 
+                               "10000-50000"="#edf902", 
+                               "50000-100000"="#f9d802", 
+                               "100000-500000"="#f9bc02", 
+                               "500000-1000000"="#f99202",
+                               ">1000000"="#f96d02"),
+                    labels = c("<5000", "5000-10000", "10000-50000", "50000-100000", "100000-500000", "500000-1000000", ">1000000", "No data"),
                     na.value = "grey90") +
   theme_minimal() +
   coord_fixed() + 
@@ -343,20 +369,43 @@ ggplot(data = countries, aes(x = long.new, y = lat)) +
     panel.grid.minor = element_line(size = 0.1),
     legend.text = element_text(family = "Ubuntu Mono"),
     axis.text = element_text(family = "Ubuntu Mono"),
-    legend.position = "right",
+    legend.position = c(0.77, 0.32),
     legend.title = element_text(family = "Ubuntu Mono"),
     plot.title = element_text(family = "Ubuntu")
   ) +
   ylab("") +
   xlab("") +
-  ggtitle("Mismatched plastic waste, tonnes") + 
-  geom_text_repel(data=cnames[cnames$mismanaged_plastic_waste_kg_person_day >= 0.1, ], 
-                  aes(long.new, lat, label = mismanaged_plastic_waste_kg_person_day), 
-                  size=3, 
-                  family = "Ubuntu Mono")
+  ggtitle("Mismatched plastic waste, tonnes") +
+  geom_point(data = SAG, 
+              aes(x = longitude, y = latitude, color=as.factor(Set)), na.rm=TRUE, size=0.5, shape=19) +
+  stat_ellipse(data = SAG,
+               aes(x = longitude, y = latitude), type = 'norm') + 
+  geom_point(data = SPG, 
+             aes(x = longitude, y = latitude, color=as.factor(Set)), na.rm=TRUE, size=0.5, shape=19)+
+  geom_point(data = NPG0, 
+             aes(x = longitude, y = latitude, color=as.factor(Set)), na.rm=TRUE, size=0.5, shape=19)+
+  geom_point(data = NPG00, 
+             aes(x = longitude, y = latitude, color=as.factor(Set)), na.rm=TRUE, size=0.5, shape=19)+
+  geom_point(data = NPG1, 
+             aes(x = longitude, y = latitude, color=as.factor(Set)), na.rm=TRUE, size=0.5, shape=19)+
+  geom_point(data = NPG2, 
+             aes(x = longitude, y = latitude, color=as.factor(Set)), na.rm=TRUE, size=0.5, shape=19)+
+  geom_point(data = NAG, 
+             aes(x = longitude, y = latitude, color=as.factor(Set)), na.rm=TRUE, size=0.5, shape=19)+
+  geom_point(data = IOG, 
+             aes(x = longitude, y = latitude, color=as.factor(Set)), na.rm=TRUE, size=0.5, shape=19)+
+  scale_colour_manual(values = c("grey50", "grey60", "grey70"))+ guides(color = FALSE)
 
 
-#ggsave("visualizations/mismatched.png", last_plot( ))
+
+# + 
+ # geom_text_repel(data=cnames[cnames$mismanaged_plastic_waste_kg_person_day >= 0.1, ], 
+  #                aes(long.new, lat, label = mismanaged_plastic_waste_kg_person_day), 
+   #               size=3, 
+    #              family = "Ubuntu Mono")
+
+
+ #ggsave("visualizations/mismatched.png", last_plot( ))
 ```
 
 
