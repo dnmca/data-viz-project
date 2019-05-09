@@ -4,7 +4,6 @@ author: Andrii Yurkiv
 ---
 
 ```{r}
-library(assertive, warn.conflicts = FALSE)
 library(ggplot2)
 library(readxl)
 library(tidyr)
@@ -413,14 +412,12 @@ ggplot(data = countries, aes(x = long.new, y = lat)) +
   stat_ellipse(data = IOG,
                aes(x = longitude, y = latitude), type = 'norm', alpha = 0.3, color = "#f90212", level = 0.99) + 
   scale_colour_manual(values = c("grey50", "grey60", "grey70"))+ guides(color = FALSE) +
-  geom_rect(aes(xmin=-10, xmax=90, ymin=-10, ymax=65), color="black", alpha=0, size = 0.05, linetype = 3)+
-  geom_text(x=35, y=12, size=3, label="NORTH PACIFIC \nGARBAGE PATCH", family = "Ubuntu Mono", color="grey40")+
-  geom_text(x=-174, y=-50, size=3, label="SOUTH ATLANTIC \nGARBAGE PATCH", family = "Ubuntu Mono", color="grey40")+
-  geom_text(x=-80, y=-49, size=3, label="INDIAN OCEAN \nGARBAGE PATCH", family = "Ubuntu Mono", color="grey40")+
-  geom_text(x=70, y=-49, size=3, label="SOUTH PACIFIC\nGARBAGE PATCH", family = "Ubuntu Mono", color="grey40")+
+  geom_rect(aes(xmin=-10, xmax=90, ymin=-10, ymax=65), color="black", alpha=0, size = 0.05, linetype = 3) +
+  geom_text(x=35, y=12, size=3, label="GREAT PACIFIC \nGARBAGE PATCH", family = "Ubuntu Mono", color="grey40") +
+  geom_text(x=-174, y=-50, size=3, label="SOUTH ATLANTIC \nGARBAGE PATCH", family = "Ubuntu Mono", color="grey40") +
+  geom_text(x=-80, y=-49, size=3, label="INDIAN OCEAN \nGARBAGE PATCH", family = "Ubuntu Mono", color="grey40") +
+  geom_text(x=70, y=-49, size=3, label="SOUTH PACIFIC\nGARBAGE PATCH", family = "Ubuntu Mono", color="grey40") +
   geom_text(x=152, y=13, size=3, label="NORTH \nATLANTIC\nGARBAGE\nPATCH", family = "Ubuntu Mono", color="grey40")
-
-
 
 
 # + 
@@ -430,8 +427,63 @@ ggplot(data = countries, aes(x = long.new, y = lat)) +
     #              family = "Ubuntu Mono")
 
 
-ggsave("visualizations/names.png", last_plot( ), width = 14.5, height = 8)
+#ggsave("visualizations/mismatched.png", last_plot( ), width = 14)
 ```
+
+```{r}
+marine_pollution = marine_pollution[1:192,]
+```
+
+```{r}
+marine_pollution$economic_status[marine_pollution$economic_status == "HIC"] <- "High-income"
+marine_pollution$economic_status[marine_pollution$economic_status == "UMI"] <- "Upper mid-income"
+marine_pollution$economic_status[marine_pollution$economic_status == "LMI"] <- "Lower mid-income"
+marine_pollution$economic_status[marine_pollution$economic_status == "LI"] <- "Low income"
+```
+
+
+
+```{r}
+grouped_by_status <- marine_pollution %>% group_by(economic_status) %>% summarize(avg__pl_wast_gen_kg_day = mean(plastic_waste_generation_kg_day), avg_inad_man_pl_wast_kg_day = mean(inadequately_managed_plastic_waste_kg_day))
+```
+
+```{r}
+grouped_by_status$economic_status <- factor(grouped_by_status$economic_status, levels = grouped_by_status$economic_status[order(grouped_by_status$avg__pl_wast_gen_kg_day)])
+```
+
+```{r}
+names(grouped_by_status) = c('economic_status', " Average plastic waste generation per day, kg", " Average amount of inadequately manged plastic waste per day, kg")
+```
+
+```{r}
+grouped_by_status %>% 
+  gather("metric", "value", -economic_status) %>%
+  ggplot(aes(economic_status, value, fill = metric)) +
+  scale_y_continuous(breaks = c(0, 200000, 400000, 600000, 800000, 1000000, 1200000, 1400000, 1600000, 1800000),
+                     labels = c("0" ,"2e5", "4e5", "6e5", "8e5", "1e6", "1.2e6", "1.4e6", "1.6e6", "1.8e6")) + 
+  geom_col(position = "dodge", width = 10) +
+  facet_wrap(~economic_status, scales = "free_x", nrow = 1) +
+  theme_minimal() +
+  theme(
+    strip.placement = "bottom",
+    legend.position = c(0.55, 1.2),
+    legend.title = element_blank(),
+    legend.text = element_text("Ubuntu mono"), 
+    axis.title = element_text("Ubuntu mono"),
+    strip.text.x = element_blank(),
+    panel.spacing.x=unit(4, "lines"),
+    panel.spacing.y=unit(1, "lines"),
+    panel.grid.major = element_blank(),
+    panel.grid.minor = element_blank(),
+    axis.ticks = element_blank(),
+    axis.text = element_text(family = "Ubuntu Mono", color = "black"),
+    plot.title = element_text(family = "Ubuntu Mono", size = 10),
+    plot.margin = unit(c(2,2,2,2), "cm")
+  ) + 
+  ylab("kg/day") +
+  xlab("Economic status")
+```
+
 
 
 
