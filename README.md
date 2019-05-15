@@ -1,4 +1,4 @@
-# *plastic&ocean*
+# *plastic&[ocean](https://raw.githubusercontent.com/andreyurkiv/data-viz-project/master/final/plastic(8).png)*
 #### Final project for Data Visualization course at UCU
 
 Inspired by [Ocean Plastic Innovation Challenge](https://www.nationalgeographic.org/funding-opportunities/innovation-challenges/plastic/dataviz/) 
